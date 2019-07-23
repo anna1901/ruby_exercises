@@ -1,4 +1,9 @@
 require 'mechanize'
+require 'csv'
+
+class Movie < Struct.new(:title, :year, :rating, :director); end
+
+movies = []
 
 agent = Mechanize.new
 
@@ -16,6 +21,14 @@ rows.take(10).each do |row|
   year = movie_page.at_css("#titleYear a").text.strip
   director = movie_page.at_css(".credit_summary_item a").text.strip
 
-  puts "#{title}: #{rating} #{year} #{director}"
+  movie  = Movie.new(title, rating, year, director)
+  movies << movie
 
+end
+
+CSV.open("top10.csv", "w", col_sep: ";") do |csv|
+  csv << ["Title", "Year", "Rating", "Director"]
+  movies.each do |movie|
+    csv << [movie.title, movie.rating, movie.year, movie.director]
+  end
 end
