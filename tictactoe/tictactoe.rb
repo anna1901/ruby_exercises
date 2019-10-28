@@ -40,7 +40,7 @@ class Board
         @fields[field/3][field%3] = symbol
     end
 
-    def fields_numbers
+    def field_numbers
         puts "Field numbers:"
         (1..9).each do |num|
             print num
@@ -65,10 +65,8 @@ class Board
             if @fields[0][0] == symbol && @fields[1][1] == symbol && @fields[2][2] == symbol
                 return true
             end
-        elsif
-            if @fields[0][2] == symbol && @fields[1][1] == symbol && fields[2][0] == symbol
-                return true
-            end
+        elsif @fields[0][2] == symbol && @fields[1][1] == symbol && @fields[2][0] == symbol
+            return true
         else
             false
         end
@@ -95,22 +93,15 @@ class Game
         i=0
         while @winner == nil
             current_player = Player.players[i]
-            puts "#{current_player.name}'s turn. Choose a field."
-            self.navigation_display
-            chosen_field = gets.chomp.to_i
-            while !is_move_allowed?(chosen_field)
-                puts "This field is already occupied. Choose different one."
-                self.navigation_display
-                chosen_field = gets.chomp.to_i
-            end
-
-            move(current_player.symbol, chosen_field)
+            chosen_field = iterate(current_player)
             self.state
             @winner = current_player if self.won?(current_player.symbol, chosen_field)
             i = (i+1)%NUMBER_OF_PLAYERS
         end
         puts "#{current_player.name} won the game! Congratulations!"
     end
+
+    
 
     def state
         @board.display
@@ -121,11 +112,25 @@ class Game
     end
 
     def navigation_display
-        @board.fields_numbers
+        @board.field_numbers
     end
 
     def is_move_allowed?(field)
         @board.is_field_empty?(field)
+    end
+
+    def iterate(player)
+        puts "#{player.name}'s turn. Choose a field."
+        self.navigation_display
+        chosen_field = gets.chomp.to_i
+        while !is_move_allowed?(chosen_field)
+            puts "This field is already occupied. Choose different one."
+            self.navigation_display
+            chosen_field = gets.chomp.to_i
+        end
+
+        move(player.symbol, chosen_field)
+        chosen_field
     end
 
     def won?(symbol, field)
