@@ -72,6 +72,14 @@ class Board
         end
     end
 
+    def tie?
+        empty_fields = 0
+        @fields.each do |row|
+            empty_fields += row.count(" ")
+        end
+        empty_fields == 0
+    end
+
     private
 
     def board_field(field)
@@ -94,16 +102,23 @@ class Game
         while @winner == nil
             current_player = Player.players[i]
             chosen_field = iterate(current_player)
-            self.state
-            @winner = current_player if self.won?(current_player.symbol, chosen_field)
+            display_state
+            @winner = current_player if won?(current_player.symbol, chosen_field)
+            if tie?
+                break
+            end
             i = (i+1)%NUMBER_OF_PLAYERS
         end
-        puts "#{current_player.name} won the game! Congratulations!"
+        if @winner == nil
+            puts "It's a tie!"
+        else
+            puts "#{current_player.name} won the game! Congratulations!"
+        end
     end
 
-    
+    private
 
-    def state
+    def display_state
         @board.display
     end
 
@@ -121,11 +136,11 @@ class Game
 
     def iterate(player)
         puts "#{player.name}'s turn. Choose a field."
-        self.navigation_display
+        navigation_display
         chosen_field = gets.chomp.to_i
         while !is_move_allowed?(chosen_field)
             puts "This field is already occupied. Choose different one."
-            self.navigation_display
+            navigation_display
             chosen_field = gets.chomp.to_i
         end
 
@@ -135,6 +150,10 @@ class Game
 
     def won?(symbol, field)
         @board.victory?(symbol, field)
+    end
+
+    def tie?
+        @board.tie?
     end
 
 end
