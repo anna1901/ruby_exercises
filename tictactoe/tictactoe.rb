@@ -1,11 +1,8 @@
 class Player
 
-    @@players = []
-
     def initialize(name, symbol)
         @name = name
         @symbol = symbol
-        @@players << self
     end
 
     def name
@@ -14,10 +11,6 @@ class Player
 
     def symbol
         @symbol
-    end
-
-    def self.players
-        @@players
     end
 end
 
@@ -92,15 +85,16 @@ class Game
 
     NUMBER_OF_PLAYERS = 2
 
-    def initialize
+    def initialize(players)
         @board = Board.new
         @winner = nil
+        @players = players
     end
 
     def call
         i=0
         while @winner == nil
-            current_player = Player.players[i]
+            current_player = @players[i]
             chosen_field = iterate(current_player)
             display_state
             @winner = current_player if won?(current_player.symbol, chosen_field)
@@ -131,7 +125,16 @@ class Game
     end
 
     def is_move_allowed?(field)
-        @board.is_field_empty?(field)
+        if !(1..9).include?(field)
+            puts "Choose a number between 1 and 9"
+            return false 
+        elsif !@board.is_field_empty?(field)
+            puts "This field is already occupied. Choose different one."
+            navigation_display
+            return false
+        else
+            true
+        end
     end
 
     def iterate(player)
@@ -139,8 +142,6 @@ class Game
         navigation_display
         chosen_field = gets.chomp.to_i
         while !is_move_allowed?(chosen_field)
-            puts "This field is already occupied. Choose different one."
-            navigation_display
             chosen_field = gets.chomp.to_i
         end
 
@@ -159,15 +160,15 @@ class Game
 end
 
 
-
+players_list = []
 puts "Insert the name of Player X:"
 name1 = gets.chomp
-player1 = Player.new(name1, "x")
+players_list << Player.new(name1, "x")
 
 puts "Insert the name of Player O:"
 name2 = gets.chomp
-player2 = Player.new(name2, "o")
+players_list << Player.new(name2, "o")
 
-game = Game.new
+game = Game.new(players_list)
 
 game.call
